@@ -20,19 +20,23 @@ downloadBtn.addEventListener('click', async () => {
     const apiEndpoint = `https://eliteprotech-apis.zone.id/${service}?url=${encodeURIComponent(url)}`;
 
     try {
-        const res = await fetch(apiEndpoint);
-        const data = await res.json();
+    const res = await fetch(apiEndpoint);
+    const data = await res.json();
 
-        if (data.success || data.status === true) {
-            renderResult(data);
-        } else {
-            resultArea.innerHTML = `<p class="text-red-400 text-center">❌ ${data.message || "Link not supported"}</p>`;
-        }
-    } catch (err) {
-        resultArea.innerHTML = `<p class="text-red-400 text-center">❌ Server error. Try again.</p>`;
-    } finally {
-        downloadBtn.innerText = "Fetch";
+    // LOG THE DATA TO CONSOLE FOR DEBUGGING
+    console.log("API Response for " + service + ":", data);
+
+    if (data.success || data.status === true) {
+        renderResult(data);
+    } else {
+        // Show the actual error message from the API provider
+        resultArea.innerHTML = `<p class="text-red-400">API Error: ${data.message || "Unknown error"}</p>`;
     }
+} catch (err) {
+    // This tells us if the fetch itself failed
+    resultArea.innerHTML = `<p class="text-red-400">Network Error: ${err.message}</p>`;
+    }
+    
 });
 
 function renderResult(data) {
