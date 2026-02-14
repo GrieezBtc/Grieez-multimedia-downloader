@@ -82,11 +82,17 @@ function renderResult(data, service) {
             <h3 class="font-bold text-lg mb-5 line-clamp-2 text-blue-100">${data.title || 'Ready to Download'}</h3>
             
             <div class="space-y-3">
-                <button onclick="forceDownload('${downloadUrl}', 'Elite_${service}.mp4')" 
-                   class="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-green-600 to-emerald-600 py-4 rounded-xl font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-95">
-                    <span>⬇️</span> DOWNLOAD NOW
-                </button>
-                <p class="text-[10px] text-gray-500 text-center uppercase">Secure Download Mode Enabled</p>
+                <a href="${downloadUrl}" 
+                   target="_blank" 
+                   rel="noreferrer"
+                   download="video.mp4"
+                   class="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-blue-600 to-indigo-600 py-4 rounded-xl font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-95">
+                    <span>⬇️</span> DOWNLOAD VIDEO
+                </a>
+                
+                <p class="text-[11px] text-yellow-500 text-center font-medium bg-yellow-500/10 py-2 rounded-lg px-2">
+                    ⚠️ Note: If a blank page opens, <b>Long Press</b> the button and select <b>"Download Link"</b>.
+                </p>
             </div>
         </div>
     `;
