@@ -73,38 +73,58 @@ downloadBtn.addEventListener('click', async () => {
 
 // 4. RENDERING THE DOWNLOAD CARD
 function renderResult(data, service) {
-    // Smart Parsing: Looks for links in every possible JSON field used by different platforms
     const downloadUrl = data.url || data.downloadURL || data.mp4_hd || (data.links && data.links[0]) || data.link;
-    const thumbnail = data.thumbnail || data.cover || (data.images && data.images[0]) || "https://via.placeholder.com/400x250?text=Media+Ready";
-    const title = data.title || (service.toUpperCase() + " Media");
+    const thumbnail = data.thumbnail || data.cover || "https://via.placeholder.com/400x250?text=Media+Ready";
 
     resultArea.innerHTML = `
         <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 animate-fade-in shadow-2xl">
-            <div class="relative group">
-                <img src="${thumbnail}" class="w-full h-48 object-cover rounded-2xl mb-4 border border-gray-700 shadow-lg" 
-                     onerror="this.src='https://via.placeholder.com/400x250?text=Video+Ready'">
-                <div class="absolute top-3 left-3 bg-black/60 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-                    ${service}
-                </div>
-            </div>
-            
-            <h3 class="font-bold text-lg mb-5 line-clamp-2 text-blue-100">${title}</h3>
+            <img src="${thumbnail}" class="w-full h-48 object-cover rounded-2xl mb-4 border border-gray-700 shadow-lg">
+            <h3 class="font-bold text-lg mb-5 line-clamp-2 text-blue-100">${data.title || 'Ready to Download'}</h3>
             
             <div class="space-y-3">
-                <a href="${downloadUrl}" 
-                   target="_self" 
-                   rel="noreferrer"
-                   download="Elite_${service}_Media"
+                <button onclick="forceDownload('${downloadUrl}', 'Elite_${service}.mp4')" 
                    class="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-green-600 to-emerald-600 py-4 rounded-xl font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-95">
                     <span>⬇️</span> DOWNLOAD NOW
-                </a>
-                
-                <p class="text-[10px] text-gray-500 text-center uppercase tracking-tighter">
-                    If download fails, hold the button and select "Save Link As"
-                </p>
+                </button>
+                <p class="text-[10px] text-gray-500 text-center uppercase">Secure Download Mode Enabled</p>
             </div>
         </div>
     `;
+}
+
+// 2. THE FORCE DOWNLOAD FUNCTION
+// This function fetches the file as a "blob" to bypass browser navigation blocks
+async function forceDownload(url, filename) {
+    const btn = document.querySelector('#resultArea button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ Downloading to browser...";
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(blobUrl);
+        a.remove();
+        btn.innerHTML = "✅ Done!";
+    } catch (error) {
+        console.error("Download failed:", error);
+        // Fallback: If Blob fails (CORS), open in new tab
+        window.open(url, '_blank');
+        btn.innerHTML = "Try Manual Save";
+    } finally {
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 3000);
+    }
 }
 
 // 5. HELPER FUNCTIONS
