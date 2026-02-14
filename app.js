@@ -12,7 +12,7 @@ downloadBtn.addEventListener('click', async () => {
     let service = "api";
     if (url.includes("tiktok.com")) service = "tiktok";
     else if (url.includes("instagram.com")) service = "instagram";
-    else if (url.includes("youtube.com") || url.includes("youtu.be")) service = "youtube";
+    else if (url.includes("youtube.com") || url.includes("youtu.be")) service = "yt";
 
     const apiEndpoint = `https://eliteprotech-apis.zone.id/${service}?url=${encodeURIComponent(url)}`;
 
