@@ -73,7 +73,8 @@ downloadBtn.addEventListener('click', async () => {
 
 // 4. RENDERING THE DOWNLOAD CARD
 function renderResult(data, service) {
-    const downloadUrl = data.url || data.downloadURL || data.mp4_hd || (data.links && data.links[0]) || data.link;
+    // 1. Find the best quality link available
+    const dlLink = data.url || data.downloadURL || data.mp4_hd || (data.links && data.links[0]) || data.link;
     const thumbnail = data.thumbnail || data.cover || "https://via.placeholder.com/400x250?text=Media+Ready";
 
     resultArea.innerHTML = `
@@ -82,17 +83,18 @@ function renderResult(data, service) {
             <h3 class="font-bold text-lg mb-5 line-clamp-2 text-blue-100">${data.title || 'Ready to Download'}</h3>
             
             <div class="space-y-3">
-                <a href="${downloadUrl}" 
+                <a href="${dlLink}" 
                    target="_blank" 
                    rel="noreferrer"
-                   download="video.mp4"
                    class="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-blue-600 to-indigo-600 py-4 rounded-xl font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-95">
-                    <span>⬇️</span> DOWNLOAD VIDEO
+                    <span>🚀</span> VIEW / DOWNLOAD
                 </a>
                 
-                <p class="text-[11px] text-yellow-500 text-center font-medium bg-yellow-500/10 py-2 rounded-lg px-2">
-                    ⚠️ Note: If a blank page opens, <b>Long Press</b> the button and select <b>"Download Link"</b>.
-                </p>
+                <div class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                    <p class="text-[11px] text-yellow-400 text-center font-medium">
+                        <b>PRO TIP:</b> If the file is empty, click the button above, then tap the <b>three dots (⋮)</b> in the video player and select <b>Download</b>.
+                    </div>
+                </div>
             </div>
         </div>
     `;
