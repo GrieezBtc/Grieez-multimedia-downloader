@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EliteDownloader AIO</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <div class="container mx-auto px-4 py-12 flex flex-col items-center">
+        <h1 class="text-5xl font-black mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            ELITE AIO
+        </h1>
+        <p class="text-gray-400 mb-10">Professional Social Media Downloader</p>
+
+        <div class="w-full max-w-xl flex gap-2 p-2 bg-gray-800 rounded-2xl border border-gray-700 shadow-2xl">
+            <input type="text" id="videoUrl" placeholder="Paste link here..." 
+                class="flex-1 bg-transparent px-4 py-3 outline-none text-lg">
+            <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-bold transition-all">
+                Fetch
+            </button>
+        </div>
+
+        <div id="resultArea" class="mt-10 w-full max-w-xl"></div>
+    </div>
+
+    <script src="app.js"></script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
