@@ -1,108 +1,96 @@
 /**
- * EliteDownloader AIO - 2026 Ultimate "Anti-Blank Page" Edition
+ * EliteDownloader AIO - 2026 Bulletproof Edition
  */
 
-// 1. CONFIGURATION
 const MY_AIO_KEY = "https://eliteprotech-apis.zone.id/aio3"; 
 const API_ENDPOINT = "https://eliteprotech-apis.zone.id/aio"; 
 
 const downloadBtn = document.getElementById('downloadBtn');
 const resultArea = document.getElementById('resultArea');
-const urlInput = document.getElementById('videoUrl');
 
-// 2. MAIN LOGIC
+// 1. CREATE HIDDEN DOWNLOADER
+const hiddenIframe = document.createElement('iframe');
+hiddenIframe.style.display = 'none';
+document.body.appendChild(hiddenIframe);
+
 downloadBtn.addEventListener('click', async () => {
-    const rawUrl = urlInput.value.trim();
-    if (!rawUrl) return alert("Please paste a social media link!");
-
-    // Clean URL to prevent 404s
-    const cleanUrl = rawUrl.split('?')[0];
-
+    const url = document.getElementById('videoUrl').value.trim();
+    if (!url) return alert("Paste a link!");
+    
     setLoading(true);
 
     try {
-        const response = await fetch(`${API_ENDPOINT}?url=${encodeURIComponent(cleanUrl)}&apikey=${MY_AIO_KEY}`);
-        const data = await response.json();
+        const res = await fetch(`${API_ENDPOINT}?url=${encodeURIComponent(url)}&apikey=${MY_AIO_KEY}`);
+        const data = await res.json();
 
-        if (data.success || data.status === true || data.result) {
+        if (data.url || data.result || data.downloadURL) {
             renderResult(data);
         } else {
-            showError(data.message || "Media not found. Try another link.");
+            showError("API returned no video. Check link or key.");
         }
     } catch (err) {
-        showError("API Connection failed. Check your key.");
+        showError("Connection failed.");
     } finally {
         setLoading(false);
     }
 });
 
-// 3. THE UI RENDERER
 function renderResult(data) {
-    const dlLink = data.url || data.downloadURL || (data.result && data.result.url) || (data.links && data.links[0]);
-    const thumb = data.thumbnail || data.cover || "https://via.placeholder.com/400x220?text=Media+Ready";
+    const dlLink = data.url || data.downloadURL || (data.result && data.result.url);
+    const thumb = data.thumbnail || data.cover || "https://via.placeholder.com/400x220?text=Ready";
 
     resultArea.innerHTML = `
         <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 shadow-2xl animate-fade-in text-center">
-            <img src="${thumb}" class="w-full h-48 object-cover rounded-2xl mb-4 border border-gray-700 shadow-md">
+            <img src="${thumb}" class="w-full h-44 object-cover rounded-2xl mb-4 border border-gray-700">
             
-            <div class="flex flex-col gap-3">
-                <button onclick="blobDownload('${dlLink}')" 
-                   class="bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
-                   ⬇️ DOWNLOAD TO GALLERY
-                </button>
-                
-                <p id="dl-progress" class="text-[10px] text-gray-500 uppercase tracking-widest">Secure Tunnel Enabled</p>
-            </div>
+            <button onclick="smartDownload('${dlLink}')" 
+               class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white shadow-lg active:scale-95 transition-all">
+               🚀 FORCE DOWNLOAD
+            </button>
+            
+            <p id="status-text" class="mt-3 text-[10px] text-gray-500 uppercase tracking-widest">Bypassing platform restrictions...</p>
         </div>
     `;
 }
 
-// 4. THE BLANK-PAGE KILLER (BLOB DOWNLOADER)
-async function blobDownload(url) {
-    const statusText = document.getElementById('dl-progress');
-    statusText.innerText = "⏳ Requesting File Data...";
-    statusText.classList.add("text-blue-400");
+// 2. THE BYPASS ENGINE
+async function smartDownload(url) {
+    const status = document.getElementById('status-text');
+    status.innerText = "⏳ Initiating Secure Stream...";
+    status.classList.add('text-blue-400');
 
     try {
-        // We fetch the video as a 'blob' (raw binary data)
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("CORS Blocked");
-        
+        // Method A: AJAX Blob Fetch (Best for PWA)
+        const response = await fetch(url, { method: 'GET', mode: 'cors' });
         const blob = await response.blob();
         const blobUrl = window.URL.createObjectURL(blob);
         
-        // We create a temporary hidden link to trigger the save
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = "Elite_Media_" + Date.now() + ".mp4";
-        document.body.appendChild(a);
-        a.click();
+        const tempLink = document.createElement('a');
+        tempLink.href = blobUrl;
+        tempLink.download = "EliteVideo_" + Date.now() + ".mp4";
+        document.body.appendChild(tempLink);
+        tempLink.click();
         
-        // Cleanup
-        window.URL.revokeObjectURL(blobUrl);
-        a.remove();
-        statusText.innerText = "✅ Download Complete!";
-    } catch (err) {
-        // If the server blocks the 'blob' method, we use the 'Sanitized Tab' fallback
-        statusText.innerText = "⚠️ Directing to Media Player...";
-        const cleanWindow = window.open();
-        cleanWindow.opener = null;
-        cleanWindow.location = url;
+        setTimeout(() => {
+            window.URL.revokeObjectURL(blobUrl);
+            tempLink.remove();
+            status.innerText = "✅ Saved to Device!";
+        }, 100);
+
+    } catch (e) {
+        // Method B: Hidden Iframe Fallback (Bypasses Blank Page)
+        status.innerText = "⚠️ Using Tunnel Mode...";
+        hiddenIframe.src = url; 
+        // This triggers a browser download prompt WITHOUT leaving the page
     }
 }
 
-// 5. HELPERS
-function setLoading(isLoading) {
-    if (isLoading) {
-        downloadBtn.disabled = true;
-        downloadBtn.innerHTML = `⏳ Processing...`;
-        resultArea.innerHTML = `<div class="py-12 text-gray-500 italic text-center">Bypassing restrictions...</div>`;
-    } else {
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = "Fetch";
-    }
+function setLoading(s) {
+    downloadBtn.disabled = s;
+    downloadBtn.innerHTML = s ? "⏳ Processing..." : "Fetch";
+    if(s) resultArea.innerHTML = `<div class="py-10 text-gray-500 animate-pulse text-center italic">Breaking through...</div>`;
 }
 
-function showError(msg) {
-    resultArea.innerHTML = `<div class="p-4 bg-red-900/20 text-red-400 rounded-xl border border-red-500/40 text-sm font-medium text-center">${msg}</div>`;
-        }
+function showError(m) {
+    resultArea.innerHTML = `<div class="p-4 bg-red-900/20 text-red-400 rounded-xl text-center border border-red-500/30">${m}</div>`;
+            }
