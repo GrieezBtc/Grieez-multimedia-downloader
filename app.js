@@ -5,13 +5,13 @@
 // 1. CONFIGURATION 
 // IMPORTANT: Replace 'PASTE_YOUR_ACTUAL_KEY_HERE' with your real API keys (just the letters/numbers).
 const API_CONFIG = {
-    tiktok: { url: "https://eliteprotech-apis.zone.id/tiktok", key: "PASTE_YOUR_ACTUAL_KEY_HERE" },
-    instagram: { url: "https://eliteprotech-apis.zone.id/instagram", key: "PASTE_YOUR_ACTUAL_KEY_HERE" },
-    threads: { url: "https://eliteprotech-apis.zone.id/threads", key: "PASTE_YOUR_ACTUAL_KEY_HERE" },
-    youtube: { url: "https://eliteprotech-apis.zone.id/ytdown", key: "PASTE_YOUR_ACTUAL_KEY_HERE" }, // URL cleaned
-    facebook: { url: "https://eliteprotech-apis.zone.id/facebook", key: "PASTE_YOUR_ACTUAL_KEY_HERE" },
-    twitter: { url: "https://eliteprotech-apis.zone.id/twitter", key: "PASTE_YOUR_ACTUAL_KEY_HERE" },
-    pinterest: { url: "https://eliteprotech-apis.zone.id/pinterest", key: "PASTE_YOUR_ACTUAL_KEY_HERE" }
+    tiktok: { url: "https://eliteprotech-apis.zone.id/tiktok", key: "https://eliteprotech-apis.zone.id/tiktok" },
+    instagram: { url: "https://eliteprotech-apis.zone.id/instagram", key: "https://eliteprotech-apis.zone.id/instagram" },
+    threads: { url: "https://eliteprotech-apis.zone.id/threads", key: "https://eliteprotech-apis.zone.id/threads?url=" },
+    youtube: { url: "https://eliteprotech-apis.zone.id/ytdown", key: "https://eliteprotech-apis.zone.id/ytdown?format=mp4" }, // URL cleaned
+    facebook: { url: "https://eliteprotech-apis.zone.id/facebook", key: "https://eliteprotech-apis.zone.id/facebook" },
+    twitter: { url: "https://eliteprotech-apis.zone.id/twitter", key: "https://eliteprotech-apis.zone.id/x" },
+    pinterest: { url: "https://eliteprotech-apis.zone.id/pinterest", key: "https://eliteprotech-apis.zone.id/pinterest?url=" }
 };
 
 const downloadBtn = document.getElementById('downloadBtn');
@@ -104,4 +104,4 @@ function updateUI(state, platform = "") {
 
 function showError(msg) {
     resultArea.innerHTML = `<div class="p-4 bg-red-900/30 text-red-400 rounded-xl border border-red-500/50 text-center">${msg}</div>`;
-    }
+                    }
