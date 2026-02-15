@@ -1,81 +1,56 @@
 /**
- * EliteDownloader AIO - Master Multi-API Fixed
+ * EliteDownloader AIO - Ultra Streamlined 
+ * This version uses your trusted AIO API to handle all platforms automatically.
  */
 
-// 1. CONFIGURATION 
-// IMPORTANT: Replace 'PASTE_YOUR_ACTUAL_KEY_HERE' with your real API keys (just the letters/numbers).
-const API_CONFIG = {
-    tiktok: { url: "https://eliteprotech-apis.zone.id/tiktok", key: "https://eliteprotech-apis.zone.id/tiktok" },
-    instagram: { url: "https://eliteprotech-apis.zone.id/instagram", key: "https://eliteprotech-apis.zone.id/instagram" },
-    threads: { url: "https://eliteprotech-apis.zone.id/threads", key: "https://eliteprotech-apis.zone.id/threads?url=" },
-    youtube: { url: "https://eliteprotech-apis.zone.id/ytdown", key: "https://eliteprotech-apis.zone.id/ytdown?format=mp4" }, // URL cleaned
-    facebook: { url: "https://eliteprotech-apis.zone.id/facebook", key: "https://eliteprotech-apis.zone.id/facebook" },
-    twitter: { url: "https://eliteprotech-apis.zone.id/twitter", key: "https://eliteprotech-apis.zone.id/x" },
-    pinterest: { url: "https://eliteprotech-apis.zone.id/pinterest", key: "https://eliteprotech-apis.zone.id/pinterest?url=" }
-};
+// 1. CONFIGURATION
+const MY_AIO_KEY = "https://eliteprotech-apis.zone.id/aio3"; 
+const API_ENDPOINT = "https://eliteprotech-apis.zone.id/aio"; // Ensure this matches your AIO endpoint
 
 const downloadBtn = document.getElementById('downloadBtn');
 const resultArea = document.getElementById('resultArea');
+const urlInput = document.getElementById('videoUrl');
 
-// 2. THE ROUTER
+// 2. MAIN LOGIC
 downloadBtn.addEventListener('click', async () => {
-    const inputUrl = document.getElementById('videoUrl').value.trim();
-    if (!inputUrl) return alert("Please paste a link!");
+    const rawUrl = urlInput.value.trim();
+    if (!rawUrl) return alert("Please paste a social media link!");
 
-    let platform = "";
-    const lowUrl = inputUrl.toLowerCase();
+    // URL CLEANER: Removes the junk at the end of links that causes 404/Blank pages
+    // Example: converts 'youtube.com/watch?v=123&feature=share' to 'youtube.com/watch?v=123'
+    const cleanUrl = rawUrl.split('&')[0].split('?si=')[0];
 
-    if (lowUrl.includes("tiktok.com")) platform = "tiktok";
-    else if (lowUrl.includes("instagram.com")) platform = "instagram";
-    else if (lowUrl.includes("threads.net")) platform = "threads";
-    else if (lowUrl.includes("youtube.com") || lowUrl.includes("youtu.be")) platform = "youtube";
-    else if (lowUrl.includes("facebook.com") || lowUrl.includes("fb.watch")) platform = "facebook";
-    else if (lowUrl.includes("twitter.com") || lowUrl.includes("x.com")) platform = "twitter";
-    else if (lowUrl.includes("pinterest.com") || lowUrl.includes("pin.it")) platform = "pinterest";
-
-    if (!platform || !API_CONFIG[platform]) {
-        return alert("Platform not recognized!");
-    }
-
-    updateUI("loading", platform);
+    setLoading(true);
 
     try {
-        // Constructing the API URL - Fixed format handling for YouTube
-        let targetApi = `${API_CONFIG[platform].url}?url=${encodeURIComponent(inputUrl)}&apikey=${API_CONFIG[platform].key}`;
-        
-        // Special case for YouTube format
-        if(platform === "youtube") targetApi += "&format=mp4";
-
-        const response = await fetch(targetApi);
+        // We send the link to your AIO endpoint. It detects the platform automatically.
+        const response = await fetch(`${API_ENDPOINT}?url=${encodeURIComponent(cleanUrl)}&apikey=${MY_AIO_KEY}`);
         const data = await response.json();
 
+        // Checking for any sign of success in the JSON response
         if (data.success || data.status === true || data.result) {
-            renderResult(data, platform);
+            renderResult(data);
         } else {
-            showError(data.message || "Failed to fetch media.");
+            showError(data.message || "Link not supported or private content.");
         }
     } catch (err) {
-        showError("Network Error. Please check your connection.");
+        showError("Connection error. Please check your API key and endpoint.");
     } finally {
-        updateUI("ready");
+        setLoading(false);
     }
 });
 
-// 3. THE UI RENDERER (Anti-Blank Page Edition)
-function renderResult(data, platform) {
-    // Smart Link Finder
+// 3. THE UI RENDERER
+function renderResult(data) {
+    // This finds the video link regardless of what the API names the field
     const dlLink = data.url || data.downloadURL || (data.result && data.result.url) || (data.links && data.links[0]);
     const thumb = data.thumbnail || data.cover || (data.result && data.result.thumbnail) || "https://via.placeholder.com/400x220?text=Media+Ready";
+    const title = data.title || "Media Content Found";
 
     resultArea.innerHTML = `
         <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 shadow-2xl animate-fade-in text-center">
-            <div class="relative mb-4">
-                <img src="${thumb}" class="w-full h-48 object-cover rounded-2xl border border-gray-700 shadow-lg">
-                <div class="absolute top-2 right-2 bg-blue-600 text-[10px] px-2 py-1 rounded-lg font-bold uppercase">
-                    ${platform}
-                </div>
-            </div>
-            <h3 class="font-bold text-lg mb-6 text-white truncate px-2">${data.title || 'Content Found'}</h3>
+            <img src="${thumb}" class="w-full h-48 object-cover rounded-2xl mb-4 border border-gray-700 shadow-md">
+            <h3 class="font-bold text-lg mb-6 text-white truncate px-2">${title}</h3>
             
             <div class="flex flex-col gap-3">
                 <a href="${dlLink}" 
@@ -83,19 +58,20 @@ function renderResult(data, platform) {
                    rel="noreferrer noopener"
                    referrerpolicy="no-referrer"
                    class="bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
-                   ⬇️ DOWNLOAD MP4
+                   ⬇️ DOWNLOAD NOW
                 </a>
-                <p class="text-[10px] text-gray-400">If a blank page opens, Long Press and select "Download Link"</p>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Processed via Elite AIO Engine</p>
             </div>
         </div>
     `;
 }
 
-function updateUI(state, platform = "") {
-    if (state === "loading") {
+// 4. HELPERS
+function setLoading(isLoading) {
+    if (isLoading) {
         downloadBtn.disabled = true;
-        downloadBtn.innerHTML = `<span>⏳</span> Analyzing...`;
-        resultArea.innerHTML = `<div class="py-10 text-gray-500 text-center animate-pulse">Connecting to ${platform}...</div>`;
+        downloadBtn.innerHTML = `⏳ Processing...`;
+        resultArea.innerHTML = `<div class="py-12 text-gray-500 italic text-center animate-pulse">Analyzing link...</div>`;
     } else {
         downloadBtn.disabled = false;
         downloadBtn.innerHTML = "Fetch";
@@ -103,5 +79,9 @@ function updateUI(state, platform = "") {
 }
 
 function showError(msg) {
-    resultArea.innerHTML = `<div class="p-4 bg-red-900/30 text-red-400 rounded-xl border border-red-500/50 text-center">${msg}</div>`;
-                    }
+    resultArea.innerHTML = `
+        <div class="p-4 bg-red-900/20 text-red-400 rounded-xl border border-red-500/40 text-sm font-medium">
+            ⚠️ ${msg}
+        </div>
+    `;
+                }
