@@ -78,26 +78,27 @@ function renderResult(data, service) {
     const thumbnail = data.thumbnail || data.cover || "https://via.placeholder.com/400x250?text=Media+Ready";
 
     resultArea.innerHTML = `
-        <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 animate-fade-in shadow-2xl">
-            <img src="${thumbnail}" class="w-full h-48 object-cover rounded-2xl mb-4 border border-gray-700 shadow-lg">
-            <h3 class="font-bold text-lg mb-5 line-clamp-2 text-blue-100">${data.title || 'Ready to Download'}</h3>
-            
-            <div class="space-y-3">
-                <a href="${dlLink}" 
-                   target="_blank" 
-                   rel="noreferrer"
-                   class="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-blue-600 to-indigo-600 py-4 rounded-xl font-bold text-white shadow-lg hover:brightness-110 transition-all active:scale-95">
-                    <span>🚀</span> VIEW / DOWNLOAD
-                </a>
-                
-                <div class="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                    <p class="text-[11px] text-yellow-400 text-center font-medium">
-                        <b>PRO TIP:</b> If the file is empty, click the button above, then tap the <b>three dots (⋮)</b> in the video player and select <b>Download</b>.
-                    </div>
-                </div>
-            </div>
+    <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 shadow-2xl">
+        <img src="${thumbnail}" class="w-full h-48 object-cover rounded-2xl mb-4">
+        
+        <div class="grid grid-cols-1 gap-3">
+            <button onclick="forceDownload('${dlLink}', 'Elite_Video.mp4')" 
+               class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white shadow-lg">
+                🚀 FAST DOWNLOAD
+            </button>
+
+            <a href="${dlLink}" target="_blank" rel="noreferrer" 
+               class="w-full bg-gray-700 py-3 rounded-xl font-bold text-white text-center text-sm">
+                🔗 Mirror Link (If Fast fails)
+            </a>
         </div>
-    `;
+        
+        <p class="mt-4 text-[10px] text-gray-500 text-center">
+            Using Proxy Server 1.2 to bypass platform restrictions.
+        </p>
+    </div>
+`;
+    
 }
 
 // 2. THE FORCE DOWNLOAD FUNCTION
@@ -105,33 +106,36 @@ function renderResult(data, service) {
 async function forceDownload(url, filename) {
     const btn = document.querySelector('#resultArea button');
     const originalText = btn.innerHTML;
-    btn.innerHTML = "⏳ Downloading to browser...";
-    btn.disabled = true;
+    btn.innerHTML = "⏳ Bypassing Security...";
+    
+    // We use a public CORS proxy to hide our website's 'Referer'
+    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(url);
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error("Proxy block");
+        
         const blob = await response.blob();
         const blobUrl = window.URL.createObjectURL(blob);
         
         const a = document.createElement('a');
         a.href = blobUrl;
-        a.download = filename;
+        a.download = filename || "video.mp4";
         document.body.appendChild(a);
         a.click();
         
         window.URL.revokeObjectURL(blobUrl);
         a.remove();
-        btn.innerHTML = "✅ Done!";
+        btn.innerHTML = "✅ Download Started!";
     } catch (error) {
-        console.error("Download failed:", error);
-        // Fallback: If Blob fails (CORS), open in new tab
-        window.open(url, '_blank');
-        btn.innerHTML = "Try Manual Save";
+        console.error("Proxy failed:", error);
+        // If the proxy fails, we fall back to a new tab but with a "Clean" window
+        const newTab = window.open();
+        newTab.opener = null;
+        newTab.location = url;
+        btn.innerHTML = "Open in Secure Tab";
     } finally {
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }, 3000);
+        setTimeout(() => { btn.innerHTML = originalText; }, 3000);
     }
 }
 
