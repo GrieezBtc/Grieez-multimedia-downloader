@@ -73,32 +73,40 @@ downloadBtn.addEventListener('click', async () => {
 
 // 4. RENDERING THE DOWNLOAD CARD
 function renderResult(data, service) {
-    // 1. Find the best quality link available
     const dlLink = data.url || data.downloadURL || data.mp4_hd || (data.links && data.links[0]) || data.link;
     const thumbnail = data.thumbnail || data.cover || "https://via.placeholder.com/400x250?text=Media+Ready";
 
     resultArea.innerHTML = `
-    <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 shadow-2xl">
-        <img src="${thumbnail}" class="w-full h-48 object-cover rounded-2xl mb-4">
-        
-        <div class="grid grid-cols-1 gap-3">
-            <button onclick="forceDownload('${dlLink}', 'Elite_Video.mp4')" 
-               class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white shadow-lg">
-                🚀 FAST DOWNLOAD
-            </button>
+        <div class="bg-gray-800 p-6 rounded-3xl border border-gray-700 animate-fade-in shadow-2xl">
+            <img src="${thumbnail}" class="w-full h-44 object-cover rounded-2xl mb-4 border border-gray-700 shadow-lg">
+            <h3 class="font-bold text-lg mb-4 line-clamp-2 text-blue-100">${data.title || 'Media Ready'}</h3>
+            
+            <div class="space-y-3">
+                <button onclick="cleanOpen('${dlLink}')" 
+                   class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
+                    🚀 GENERATE DOWNLOAD
+                </button>
 
-            <a href="${dlLink}" target="_blank" rel="noreferrer" 
-               class="w-full bg-gray-700 py-3 rounded-xl font-bold text-white text-center text-sm">
-                🔗 Mirror Link (If Fast fails)
-            </a>
+                <a href="googlechrome://navigate?url=${dlLink}" class="block text-center text-[10px] text-gray-500 uppercase tracking-widest mt-2">
+                    Open in Mobile Chrome
+                </a>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-900/20 border border-blue-500/30 rounded-xl">
+                <p class="text-[11px] text-blue-300 text-center">
+                    <b>NOTE:</b> If a video player opens, tap the <b>three dots (⋮)</b> or <b>long-press</b> the video to save.
+                </p>
+            </div>
         </div>
-        
-        <p class="mt-4 text-[10px] text-gray-500 text-center">
-            Using Proxy Server 1.2 to bypass platform restrictions.
-        </p>
-    </div>
-`;
-    
+    `;
+}
+
+// THE SANITIZER: Opens link without "Referrer" info to bypass the blank page
+function cleanOpen(url) {
+    const newWindow = window.open();
+    newWindow.opener = null; // This is the secret to bypassing the block
+    newWindow.referrerpolicy = "no-referrer";
+    newWindow.location.href = url;
 }
 
 // 2. THE FORCE DOWNLOAD FUNCTION
